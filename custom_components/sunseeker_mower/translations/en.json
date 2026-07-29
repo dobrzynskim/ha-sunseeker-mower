@@ -2,30 +2,60 @@
   "config": {
     "step": {
       "user": {
-        "title": "Logowanie do konta kosiarki",
-        "description": "Podaj te same dane logowania, ktorych uzywasz w apce mobilnej (Robotic Mower / Sunseeker).",
+        "title": "Log in to your mower account",
+        "description": "Use the same login credentials as in the mobile app (Robotic Mower / Sunseeker).",
         "data": {
-          "email": "E-mail",
-          "password": "Haslo"
+          "email": "Email",
+          "password": "Password"
         }
       },
       "reauth_confirm": {
-        "title": "Wymagane ponowne logowanie",
-        "description": "Haslo do konta {email} przestalo dzialac. Podaj je ponownie.",
+        "title": "Re-authentication required",
+        "description": "The password for {email} stopped working. Please enter it again.",
         "data": {
-          "password": "Haslo"
+          "password": "Password"
         }
       }
     },
     "error": {
-      "invalid_auth": "Nieprawidlowy e-mail lub haslo.",
-      "cannot_connect": "Nie udalo sie polaczyc z serwerem producenta.",
-      "no_devices_found": "Zalogowano poprawnie, ale to konto nie ma powiazanych kosiarek.",
-      "unknown": "Wystapil nieoczekiwany blad."
+      "invalid_auth": "Invalid email or password.",
+      "cannot_connect": "Could not connect to the manufacturer's server.",
+      "no_devices_found": "Logged in successfully, but no mowers are linked to this account.",
+      "unknown": "An unexpected error occurred."
     },
     "abort": {
-      "already_configured": "To konto jest juz skonfigurowane.",
-      "reauth_successful": "Ponowne logowanie zakonczone sukcesem."
+      "already_configured": "This account is already configured.",
+      "reauth_successful": "Re-authentication was successful."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "mowing_area": {
+        "name": "Mowing area"
+      },
+      "work_hours": {
+        "name": "Work time"
+      },
+      "battery": {
+        "name": "Battery"
+      },
+      "efficiency": {
+        "name": "Average mowing efficiency"
+      },
+      "mower_status": {
+        "name": "Status",
+        "state": {
+          "working": "Working",
+          "unknown": "Unknown"
+        }
+      },
+      "mower_fault": {
+        "name": "Fault",
+        "state": {
+          "ok": "OK",
+          "unknown": "Unknown"
+        }
+      }
     }
   }
 }

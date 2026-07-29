@@ -23,10 +23,21 @@ class SunseekerAuthError(SunseekerApiError):
 class SunseekerApiClient:
     """Owija logowanie, odswiezanie tokena i zapytania o dane kosiarki."""
 
-    def __init__(self, session: aiohttp.ClientSession, email: str, password: str) -> None:
+    def __init__(
+        self,
+        session: aiohttp.ClientSession,
+        email: str,
+        password: str,
+        language: str = "en",
+    ) -> None:
         self._session = session
         self._email = email
         self._password = password
+        # Serwer wspiera Accept-Language (widoczne w zdekompilowanym kodzie apki) -
+        # wysylamy je, zeby workStatusName/faultStatusName wracaly w naszym jezyku
+        # zamiast domyslnego chinskiego. Jesli serwer nie wspiera danego jezyka,
+        # i tak polegamy glownie na wlasnym mapowaniu kodow (STATUS_CODE_TO_KEY).
+        self._language = language
 
         self._access_token: str | None = None
         self._token_type: str = "bearer"
@@ -65,7 +76,10 @@ class SunseekerApiClient:
             await self.async_login()
 
     async def _async_token_request(self, form_data: dict[str, str]) -> None:
-        headers = {"Authorization": BASIC_AUTH_HEADER}
+        headers = {
+            "Authorization": BASIC_AUTH_HEADER,
+            "Accept-Language": self._language,
+        }
         url = BASE_URL + "auth/oauth/token"
         try:
             async with self._session.post(url, headers=headers, data=form_data) as resp:
@@ -95,7 +109,10 @@ class SunseekerApiClient:
             await self._async_refresh()
 
     def _auth_headers(self) -> dict[str, str]:
-        return {"Authorization": f"{self._token_type} {self._access_token}"}
+        return {
+            "Authorization": f"{self._token_type} {self._access_token}",
+            "Accept-Language": self._language,
+        }
 
     # ------------------------------------------------------------------
     # Zapytania o dane

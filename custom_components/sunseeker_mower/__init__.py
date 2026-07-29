@@ -44,10 +44,14 @@ class MowerDataUpdateCoordinator(DataUpdateCoordinator[dict[str, dict[str, Any]]
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Konfiguruje integracje na podstawie wpisu utworzonego przez config_flow."""
     session = async_get_clientsession(hass)
+    # hass.config.language to np. "pl" albo "en" - przekazujemy jako Accept-Language,
+    # serwer producenta wspiera lokalizacje tekstow statusu (widoczne w kodzie apki)
+    language = hass.config.language or "en"
     client = SunseekerApiClient(
         session,
         entry.data[CONF_EMAIL],
         entry.data[CONF_PASSWORD],
+        language=language,
     )
 
     coordinator = MowerDataUpdateCoordinator(hass, client)

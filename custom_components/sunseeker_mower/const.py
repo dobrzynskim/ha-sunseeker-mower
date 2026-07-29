@@ -14,8 +14,26 @@ UPDATE_INTERVAL_MINUTES = 15
 KEY_AREA = "area"
 KEY_ON_MIN = "onMin"
 KEY_BATTERY = "electricity"
-KEY_STATUS = "workStatusName"
-KEY_FAULT = "faultStatusName"
+KEY_STATUS_NAME = "workStatusName"  # tekst z serwera (zalezny od Accept-Language)
+KEY_STATUS_CODE = "workStatusCode"  # stabilny kod, niezalezny od jezyka
+KEY_FAULT_NAME = "faultStatusName"
+KEY_FAULT_CODE = "faultStatusCode"
 KEY_ONLINE = "onlineFlag"
 KEY_LAT = "lat"
 KEY_LNG = "lng"
+
+# Mapowanie kodow statusu na stabilne klucze tlumaczen (translation_key "state").
+# UWAGA: potwierdzony w praktyce jest tylko kod "1" (praca/koszenie).
+# Pozostale kody nie zostaly jeszcze zaobserwowane - nieznane kody spadaja
+# na "unknown", a surowy kod/nazwa trafia do atrybutu diagnostycznego encji,
+# zeby mozna bylo je zglosic i dopisac tlumaczenie.
+STATUS_CODE_TO_KEY: dict[str, str] = {
+    "1": "working",
+}
+
+FAULT_CODE_TO_KEY: dict[str, str] = {
+    "normal": "ok",
+}
+
+STATUS_UNKNOWN_KEY = "unknown"
+FAULT_UNKNOWN_KEY = "unknown"

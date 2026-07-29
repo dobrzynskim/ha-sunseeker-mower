@@ -18,11 +18,17 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
     DOMAIN,
+    FAULT_CODE_TO_KEY,
+    FAULT_UNKNOWN_KEY,
     KEY_AREA,
     KEY_BATTERY,
-    KEY_FAULT,
+    KEY_FAULT_CODE,
+    KEY_FAULT_NAME,
     KEY_ON_MIN,
-    KEY_STATUS,
+    KEY_STATUS_CODE,
+    KEY_STATUS_NAME,
+    STATUS_CODE_TO_KEY,
+    STATUS_UNKNOWN_KEY,
 )
 
 
@@ -31,13 +37,57 @@ class MowerSensorDescription(SensorEntityDescription):
     """Opis sensora + funkcja wyciagajaca wartosc z rekordu danych."""
 
     value_fn: Callable[[dict[str, Any]], Any] = lambda record: None
+    attrs_fn: Callable[[dict[str, Any]], dict[str, Any]] | None = None
+    options: tuple[str, ...] | None = None
+
+
+def _status_value(record: dict[str, Any]) -> str:
+    code = record.get(KEY_STATUS_CODE)
+    return STATUS_CODE_TO_KEY.get(str(code), STATUS_UNKNOWN_KEY)
+
+
+def _status_attrs(record: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "raw_code": record.get(KEY_STATUS_CODE),
+        "raw_text_from_server": record.get(KEY_STATUS_NAME),
+    }
+
+
+def _fault_value(record: dict[str, Any]) -> str:
+    code = record.get(KEY_FAULT_CODE)
+    return FAULT_CODE_TO_KEY.get(str(code), FAULT_UNKNOWN_KEY)
+
+
+def _fault_attrs(record: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "raw_code": record.get(KEY_FAULT_CODE),
+        "raw_text_from_server": record.get(KEY_FAULT_NAME),
+    }
+
+
+def _efficiency_value(record: dict[str, Any]) -> float | None:
+    """Srednia wydajnosc koszenia OD POCZATKU (area / godziny pracy).
+
+    UWAGA: to jest srednia za caly czas eksploatacji, nie tylko za czas
+    aktywnego koszenia (serwer nie oddziela dotychczas czasu koszenia od
+    czasu ladowania/postoju w danych, ktore mamy potwierdzone). Jesli w
+    przyszlosci uda sie potwierdzic endpoint z historia sesji (cmdLogs /
+    getLogRecords), mozna to zawezic do faktycznego czasu koszenia.
+    """
+    area = record.get(KEY_AREA)
+    on_min = record.get(KEY_ON_MIN)
+    if area is None or not on_min:
+        return None
+    hours = on_min / 60
+    if hours <= 0:
+        return None
+    return round(area / hours, 1)
 
 
 SENSOR_DESCRIPTIONS: tuple[MowerSensorDescription, ...] = (
     MowerSensorDescription(
         key="area_m2",
         translation_key="mowing_area",
-        name="Powierzchnia koszenia",
         icon="mdi:texture-box",
         native_unit_of_measurement="m²",
         state_class=SensorStateClass.TOTAL_INCREASING,
@@ -46,7 +96,6 @@ SENSOR_DESCRIPTIONS: tuple[MowerSensorDescription, ...] = (
     MowerSensorDescription(
         key="work_hours",
         translation_key="work_hours",
-        name="Czas pracy",
         icon="mdi:timer-outline",
         native_unit_of_measurement="h",
         state_class=SensorStateClass.TOTAL_INCREASING,
@@ -57,25 +106,35 @@ SENSOR_DESCRIPTIONS: tuple[MowerSensorDescription, ...] = (
     MowerSensorDescription(
         key="battery",
         translation_key="battery",
-        name="Bateria",
         device_class=SensorDeviceClass.BATTERY,
         native_unit_of_measurement="%",
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=lambda record: record.get(KEY_BATTERY),
     ),
     MowerSensorDescription(
+        key="efficiency",
+        translation_key="efficiency",
+        icon="mdi:speedometer",
+        native_unit_of_measurement="m²/h",
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=_efficiency_value,
+    ),
+    MowerSensorDescription(
         key="status",
-        translation_key="status",
-        name="Status",
-        icon="mdi:robot-mower-outline",
-        value_fn=lambda record: record.get(KEY_STATUS),
+        translation_key="mower_status",
+        device_class=SensorDeviceClass.ENUM,
+        options=("working", "unknown"),
+        value_fn=_status_value,
+        attrs_fn=_status_attrs,
     ),
     MowerSensorDescription(
         key="fault",
-        translation_key="fault",
-        name="Usterka",
+        translation_key="mower_fault",
         icon="mdi:alert-circle-outline",
-        value_fn=lambda record: record.get(KEY_FAULT),
+        device_class=SensorDeviceClass.ENUM,
+        options=("ok", "unknown"),
+        value_fn=_fault_value,
+        attrs_fn=_fault_attrs,
     ),
 )
 
@@ -112,6 +171,9 @@ class MowerSensor(CoordinatorEntity, SensorEntity):
         self.entity_description = description
         self._sn = sn
 
+        if description.options:
+            self._attr_options = list(description.options)
+
         self._attr_unique_id = f"{sn}_{description.key}"
         self._attr_has_entity_name = True
 
@@ -130,6 +192,16 @@ class MowerSensor(CoordinatorEntity, SensorEntity):
             return None
         record = device_data.get("record", {})
         return self.entity_description.value_fn(record)
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any] | None:
+        if self.entity_description.attrs_fn is None:
+            return None
+        device_data = self.coordinator.data.get(self._sn)
+        if not device_data:
+            return None
+        record = device_data.get("record", {})
+        return self.entity_description.attrs_fn(record)
 
     @property
     def available(self) -> bool:
