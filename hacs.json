@@ -1,6 +1,5 @@
 {
   "name": "Sunseeker / Bugull Robotic Mower",
   "render_readme": true,
-  "homeassistant": "2023.9.0",
-  "iot_class": "cloud_polling"
+  "homeassistant": "2023.9.0"
 }
