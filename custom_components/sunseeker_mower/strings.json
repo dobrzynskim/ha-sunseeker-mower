@@ -1,0 +1,31 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Logowanie do konta kosiarki",
+        "description": "Podaj te same dane logowania, ktorych uzywasz w apce mobilnej (Robotic Mower / Sunseeker).",
+        "data": {
+          "email": "E-mail",
+          "password": "Haslo"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Wymagane ponowne logowanie",
+        "description": "Haslo do konta {email} przestalo dzialac. Podaj je ponownie.",
+        "data": {
+          "password": "Haslo"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Nieprawidlowy e-mail lub haslo.",
+      "cannot_connect": "Nie udalo sie polaczyc z serwerem producenta.",
+      "no_devices_found": "Zalogowano poprawnie, ale to konto nie ma powiazanych kosiarek.",
+      "unknown": "Wystapil nieoczekiwany blad."
+    },
+    "abort": {
+      "already_configured": "To konto jest juz skonfigurowane.",
+      "reauth_successful": "Ponowne logowanie zakonczone sukcesem."
+    }
+  }
+}
