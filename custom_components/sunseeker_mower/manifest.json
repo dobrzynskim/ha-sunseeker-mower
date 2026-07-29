@@ -1,11 +1,11 @@
 {
   "domain": "sunseeker_mower",
   "name": "Sunseeker / Bugull Robotic Mower",
-  "version": "0.1.0",
-  "documentation": "https://github.com/dobrzynskim/ha-sunseeker-mower",
-  "issue_tracker": "https://github.com/dobrzynskim/ha-sunseeker-mower/issues",
   "codeowners": ["@dobrzynskim"],
-  "requirements": [],
+  "config_flow": true,
+  "documentation": "https://github.com/dobrzynskim/ha-sunseeker-mower",
   "iot_class": "cloud_polling",
-  "config_flow": true
+  "issue_tracker": "https://github.com/dobrzynskim/ha-sunseeker-mower/issues",
+  "requirements": [],
+  "version": "0.1.0"
 }
