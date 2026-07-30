@@ -22,8 +22,10 @@ from .const import (
     FAULT_UNKNOWN_KEY,
     KEY_AREA,
     KEY_BATTERY,
+    KEY_BORDER_LENGTH_MM,
     KEY_FAULT_CODE,
     KEY_FAULT_NAME,
+    KEY_GARDEN_AREA,
     KEY_ON_MIN,
     KEY_STATUS_CODE,
     KEY_STATUS_NAME,
@@ -118,6 +120,26 @@ SENSOR_DESCRIPTIONS: tuple[MowerSensorDescription, ...] = (
         native_unit_of_measurement="m²/h",
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=_efficiency_value,
+    ),
+    MowerSensorDescription(
+        key="garden_area_total",
+        translation_key="garden_area_total",
+        icon="mdi:fence",
+        native_unit_of_measurement="m²",
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda record: record.get(KEY_GARDEN_AREA),
+    ),
+    MowerSensorDescription(
+        key="border_length",
+        translation_key="border_length",
+        icon="mdi:vector-polyline",
+        native_unit_of_measurement="m",
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda record: (
+            round(record[KEY_BORDER_LENGTH_MM] / 1000, 1)
+            if record.get(KEY_BORDER_LENGTH_MM) is not None
+            else None
+        ),
     ),
     MowerSensorDescription(
         key="status",

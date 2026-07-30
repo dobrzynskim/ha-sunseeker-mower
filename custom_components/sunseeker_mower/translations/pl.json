@@ -42,6 +42,12 @@
       "efficiency": {
         "name": "Srednia wydajnosc koszenia"
       },
+      "garden_area_total": {
+        "name": "Calkowita powierzchnia ogrodka"
+      },
+      "border_length": {
+        "name": "Dlugosc petli granicznej"
+      },
       "mower_status": {
         "name": "Status",
         "state": {

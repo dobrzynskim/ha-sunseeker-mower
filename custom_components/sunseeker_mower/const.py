@@ -21,6 +21,8 @@ KEY_FAULT_CODE = "faultStatusCode"
 KEY_ONLINE = "onlineFlag"
 KEY_LAT = "lat"
 KEY_LNG = "lng"
+KEY_GARDEN_AREA = "gardenArea"
+KEY_BORDER_LENGTH_MM = "borderLengthMm"
 
 # Mapowanie kodow statusu na stabilne klucze tlumaczen (translation_key "state").
 # UWAGA: potwierdzony w praktyce jest tylko kod "1" (praca/koszenie).

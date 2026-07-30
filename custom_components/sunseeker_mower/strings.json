@@ -42,6 +42,12 @@
       "efficiency": {
         "name": "Average mowing efficiency"
       },
+      "garden_area_total": {
+        "name": "Total garden area"
+      },
+      "border_length": {
+        "name": "Border wire length"
+      },
       "mower_status": {
         "name": "Status",
         "state": {

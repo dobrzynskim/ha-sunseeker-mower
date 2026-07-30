@@ -144,6 +144,18 @@ class SunseekerApiClient:
         payload = await self._async_get(f"app_mower/device-record/getRecord/{sn}")
         return payload.get("data") or {}
 
+    async def async_get_map_info(self, sn: str) -> dict[str, Any]:
+        """Zwraca dane najnowszej mapy: calkowita powierzchnia ogrodka (area, m2)
+        i dlugosc petli granicznej (borderLength, mm). Jesli urzadzenie nie ma
+        jeszcze zmapowanego ogrodka, zwraca pusty slownik zamiast rzucac blad -
+        to nie jest krytyczne dla dzialania reszty integracji.
+        """
+        try:
+            payload = await self._async_get(f"map/work-map/newest/1/{sn}")
+        except SunseekerApiError:
+            return {}
+        return payload.get("data") or {}
+
     async def async_get_all_records(self) -> dict[str, dict[str, Any]]:
         """Pobiera liste urzadzen i rekord danych dla kazdego z nich.
 
@@ -156,6 +168,12 @@ class SunseekerApiClient:
             if not sn:
                 continue
             record = await self.async_get_record(sn)
+
+            map_info = await self.async_get_map_info(sn)
+            if map_info:
+                record["gardenArea"] = map_info.get("area")
+                record["borderLengthMm"] = map_info.get("borderLength")
+
             result[sn] = {
                 "name": dev.get("deviceName") or "Kosiarka",
                 "model": dev.get("deviceModelName") or dev.get("modelName"),
